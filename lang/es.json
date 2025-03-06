@@ -13,5 +13,8 @@
     "Forgot your password?": "¿Olvidaste tu contraseña?",
     "Log in to your account": "Inicia sesión en tu cuenta",
     "Enter your RUN and password below to log in": "Ingresa tu RUN y contraseña para iniciar sesión",
-    "The :attribute is not a valid Chilean RUN": "El :attribute no es un RUN chileno válido"
+    "The :attribute is not a valid Chilean RUN": "El :attribute no es un RUN chileno válido",
+    "RUN": "RUN",
+    "Enter your RUN": "Ingresa tu RUN",
+    "These credentials do not match our records.": "Las credenciales ingresadas no coinciden con nuestros registros."
 }
