@@ -10,13 +10,18 @@
             @csrf
 
             <div>
+                <x-label for="run" value="{{ __('RUN') }}" />
+                <x-input id="run" class="block mt-1 w-full" type="text" name="run" :value="old('run')" required autofocus autocomplete="run" />
+            </div>
+
+            <div class="mt-4">
                 <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autocomplete="name" />
             </div>
 
             <div class="mt-4">
                 <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
             </div>
 
             <div class="mt-4">
@@ -51,7 +56,7 @@
                     {{ __('Already registered?') }}
                 </a>
 
-                <x-button class="ms-4">
+                <x-button class="ml-4">
                     {{ __('Register') }}
                 </x-button>
             </div>

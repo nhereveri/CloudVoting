@@ -1,0 +1,17 @@
+{
+    "Username": "Usuario",
+    "Password": "Contraseña",
+    "Confirm password": "Confirmar contraseña",
+    "Register": "Registrarse",
+    "Already have an account?": "¿Ya estás registrado?",
+    "Log in": "Iniciar sesión",
+    "Create an account": "Crear una cuenta",
+    "Enter your details below to create your account": "Ingresa tus datos para crear tu cuenta",
+    "Remember me": "Recordar sesión",
+    "Don't have an account?": "¿No tienes una cuenta?",
+    "Sign up": "Registrarse",
+    "Forgot your password?": "¿Olvidaste tu contraseña?",
+    "Log in to your account": "Inicia sesión en tu cuenta",
+    "Enter your RUN and password below to log in": "Ingresa tu RUN y contraseña para iniciar sesión",
+    "The :attribute is not a valid Chilean RUN": "El :attribute no es un RUN chileno válido"
+}
