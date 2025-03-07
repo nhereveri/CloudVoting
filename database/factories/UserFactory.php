@@ -37,6 +37,17 @@ class UserFactory extends Factory
         ];
     }
 
+    public function configure()
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->permission()->create([
+                'can_vote' => true,
+                'is_supervisor' => false,
+                'is_admin' => false,
+            ]);
+        });
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */
