@@ -1,9 +1,9 @@
 {
-    "Username": "Usuario",
+    "Name": "Nombre y apellido",
     "Password": "Contraseña",
-    "Confirm password": "Confirmar contraseña",
+    "Confirm Password": "Confirmar contraseña",
     "Register": "Registrarse",
-    "Already have an account?": "¿Ya estás registrado?",
+    "Already registered?": "¿Ya estás registrado?",
     "Log in": "Iniciar sesión",
     "Create an account": "Crear una cuenta",
     "Enter your details below to create your account": "Ingresa tus datos para crear tu cuenta",

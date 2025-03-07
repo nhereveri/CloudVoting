@@ -77,4 +77,21 @@ class RunValidatorService
             default => (string)$verifier
         };
     }
+
+    /**
+     * Generate a valid RUN with its verifier digit
+     */
+    public function generateValidRun(?int $number = null): string
+    {
+        if ($number === null) {
+            $number = random_int(1000000, 99999999);
+        }
+
+        if (!$this->validateNumberRange((string)$number)) {
+            throw new \InvalidArgumentException('Number must be between 1000000 and 99999999');
+        }
+
+        $verifier = $this->calculateVerifier((string)$number);
+        return $number . '-' . $verifier;
+    }
 }
