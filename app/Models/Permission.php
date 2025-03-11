@@ -10,6 +10,7 @@ class Permission extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'can_vote',
         'is_supervisor',
         'is_admin',

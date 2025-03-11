@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         User::factory()
             ->afterCreating(function (User $user) {
                 $user->permission()->update([
-                    'can_vote' => true,
+                    'can_vote' => false,
                     'is_supervisor' => true,
                     'is_admin' => true,
                 ]);
