@@ -16,5 +16,6 @@
     "The :attribute is not a valid Chilean RUN": "El :attribute no es un RUN chileno válido",
     "RUN": "RUN",
     "Enter your RUN": "Ingresa tu RUN",
-    "These credentials do not match our records.": "Las credenciales ingresadas no coinciden con nuestros registros."
+    "These credentials do not match our records.": "Las credenciales ingresadas no coinciden con nuestros registros.",
+    "Number of voters": "Número de votantes"
 }
