@@ -27,9 +27,11 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/batch', function () {
-        return view('batch');
-    })->name('batch');
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/batch', function () {
+            return view('batch');
+        })->name('batch');
 
-    Route::post('/users/batch', [UserController::class, 'batchCreate'])->middleware(['auth', 'verified']);
+        Route::post('/users/batch', [UserController::class, 'batchCreate']);
+    });
 });

@@ -14,8 +14,9 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Styles -->
+        <!-- Livewire -->
         @livewireStyles
+        @livewireScripts
 
         @if (isset($custom_styles))
             {{ $custom_styles }}
@@ -43,7 +44,5 @@
         </div>
 
         @stack('modals')
-
-        @livewireScripts
     </body>
 </html>
