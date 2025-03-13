@@ -31,8 +31,8 @@ self.onmessage = function(e) {
     }
 
     data.forEach((row, index) => {
-        const run = row[1];
-        const email = row[3];
+        const run = row[0];
+        const email = row[2];
         const isValidRUN = validateRUN(run);
         const isValidEmail = validateEmail(email);
         

@@ -63,34 +63,6 @@
                         let validationWorker;
                         let toastWorker;
 
-                        function validateRUN(run) {
-                            if (!run || run.trim() === '') return false;
-                            
-                            run = run.replace(/[.-]/g, '').toUpperCase();
-                            if (run.length < 2) return false;
-                            
-                            let rut = run.slice(0, -1);
-                            let dv = run.slice(-1);
-                            
-                            let sum = 0;
-                            let multiplier = 2;
-                            
-                            for (let i = rut.length - 1; i >= 0; i--) {
-                                sum += Number(rut[i]) * multiplier;
-                                multiplier = multiplier === 7 ? 2 : multiplier + 1;
-                            }
-                            let expectedDv = 11 - (sum % 11);
-                            expectedDv = expectedDv === 11 ? '0' : expectedDv === 10 ? 'K' : expectedDv.toString();
-                            
-                            return dv === expectedDv;
-                        }
-
-                        function validateEmail(email) {
-                            if (!email || email.trim() === '') return false;
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                            return emailRegex.test(email);
-                        }
-
                         function validateAllUsers() {
                             return new Promise((resolve, reject) => {
                                 if (!validationWorker) {
@@ -107,25 +79,26 @@
                         
                             validationWorker.onmessage = function(e) {
                                 const results = e.data;
+
+                                console.log({results});
                                     
-                                    results.forEach(result => {
-                                        if(data[result.index][1] !== '') {
-                                            hot.setCellMeta(result.index, 1, 'className', 
-                                                result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
-                                            );
-                                        }
-                                        
-                                        if(data[result.index][3] !== '') {
-                                            hot.setCellMeta(result.index, 3, 'className',
-                                                result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
-                                            );
-                                        }
-                                        hot.setDataAtCell(result.index, 0, result.isRowValid);
-                                    });
+                                results.forEach(result => {
+                                    if(data[result.index][0] !== '') {
+                                        hot.setCellMeta(result.index, 0, 'className', 
+                                            result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
+                                        );
+                                    }
                                     
-                                    hot.render();
-                                    resolve(results);
-                                };
+                                    if(data[result.index][2] !== '') {
+                                        hot.setCellMeta(result.index, 2, 'className',
+                                            result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
+                                        );
+                                    }
+                                });
+                                
+                                hot.render();
+                                resolve(results);
+                            };
                         
                             validationWorker.onerror = function(error) {
                                 reject(error);
@@ -137,15 +110,16 @@
                         
                         async function createUsers() {
                             try {
-                                await validateAllUsers();
+                                const validationResults = await validateAllUsers();
                                 const data = hot.getData();
                                 const validUsers = data.filter((row, index) => {
-                                    return row[0] === true && 
-                                           row[1] && row[2] && row[3];
+                                    const result = validationResults.find(r => r.index === index);
+                                    return row[0] && row[1] && row[2] && 
+                                           result && result.isValidRUN && result.isValidEmail;
                                 }).map(row => ({
-                                    run: row[1],
-                                    name: row[2],
-                                    email: row[3]
+                                    run: row[0],
+                                    name: row[1],
+                                    email: row[2]
                                 }));
                         
                                 if (validUsers.length === 0) {
@@ -248,19 +222,18 @@
                         
                         hot = new Handsontable(container, {
                             data: [
-                                [false, '33333333-3', 'Nelson', 'nh@gmail.com'],
-                                [false, '12046474-3', 'Nelson', 'nh@gmail'],
-                                [false, '12046474-5', 'Nelson', 'nh@gmail.com'],
+                                ['33333333-3', 'Nelson', 'nh@gmail.com'],
+                                ['12046474-3', 'Nelson', 'nh@gmail'],
+                                ['12046474-5', 'Nelson', 'nh@gmail.com'],
                             ],
-                            colHeaders: ['', 'RUN', 'Nombre', 'Correo electrónico'],
+                            colHeaders: ['RUN', 'Nombre', 'Correo electrónico'],
                             headerClassName: 'sans-serif-header',
                             columns: [
-                                { type: 'checkbox', className: 'htCenter' },
                                 { type: 'text', className: 'monospace-cell' },
                                 { type: 'text', className: 'monospace-cell' },
                                 { type: 'text', className: 'monospace-cell' }
                             ],
-                            colWidths: [8, null, null, null],
+                            colWidths: [null, null, null],
                             rowHeaders: false,
                             minCols: 3,
                             minRows: 1,
@@ -273,9 +246,6 @@
                         // Make function available globally
                         window.validateAllUsers = validateAllUsers;
                         window.createUsers = createUsers;
-                        showToast('Test 001');
-                        showToast('Test 002', 'warning');
-                        showToast('Test 003', 'error');
                     });
                 </script>
             </div>
