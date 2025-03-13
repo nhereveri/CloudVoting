@@ -77,4 +77,17 @@ class UserController extends Controller
             'exists' => $exists
         ]);
     }
+
+    public function checkRun(Request $request)
+    {
+        $request->validate([
+            'run' => 'required|string'
+        ]);
+
+        $exists = User::where('run', $request->run)->exists();
+        
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
 }
