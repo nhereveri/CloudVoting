@@ -39,6 +39,13 @@
                         Validar
                     </button>
                 </div>
+                <div class="col-span-3">
+                    <div id="toast" class="hidden fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full transition-all duration-300 z-50 max-w-sm w-full shadow-lg mt-4">
+                        <div class="flex items-center p-4 text-sm rounded-lg" role="alert">
+                            <div id="toastMessage" class="flex-1 text-center"></div>
+                        </div>
+                    </div>
+                </div>
             </dl>
 
         <!-- END -->
@@ -116,7 +123,7 @@
                             const toast = document.getElementById('toast');
                             const toastMessage = document.getElementById('toastMessage');
                             
-                            toast.className = 'transform transition-all duration-300';
+                            toast.className = 'fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full transition-all duration-300 z-50 max-w-sm w-full shadow-lg mt-4';
                             if (type === 'success') {
                                 toast.className += ' bg-green-50 text-green-800 border border-green-500 rounded-lg';
                             } else {
@@ -124,10 +131,19 @@
                             }
                             
                             toastMessage.textContent = message;
-                            toast.classList.remove('hidden', 'opacity-0');
+                            toast.classList.remove('hidden');
                             
+                            // Initial position (above viewport)
+                            toast.style.transform = 'translateX(-50%) translateY(-100%)';
+                            
+                            // Slide down animation
+                            requestAnimationFrame(() => {
+                                toast.style.transform = 'translateX(-50%) translateY(0)';
+                            });
+                            
+                            // Slide up and hide after delay
                             setTimeout(() => {
-                                toast.classList.add('opacity-0');
+                                toast.style.transform = 'translateX(-50%) translateY(-100%)';
                                 setTimeout(() => {
                                     toast.classList.add('hidden');
                                 }, 300);
