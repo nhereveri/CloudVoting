@@ -17,7 +17,7 @@
                     </x-nav-link>
                     @if (auth()->user()->permission->is_admin)
                     <x-nav-link href="{{ route('batch') }}" :active="request()->routeIs('batch')">
-                        {{ __('Batch') }}
+                        {{ __('Batch upload users') }}
                     </x-nav-link>
                     @endif
                 </div>
@@ -149,7 +149,7 @@
             </x-responsive-nav-link>
             @if (auth()->user()->permission->is_admin)
             <x-responsive-nav-link href="{{ route('batch') }}" :active="request()->routeIs('batch')">
-                {{ __('Batch') }}
+                {{ __('Batch upload users') }}
             </x-responsive-nav-link>
             @endif
         </div>

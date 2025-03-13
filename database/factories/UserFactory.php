@@ -37,6 +37,7 @@ class UserFactory extends Factory
         ];
     }
 
+    /*
     public function configure()
     {
         return $this->afterCreating(function (User $user) {
@@ -47,6 +48,7 @@ class UserFactory extends Factory
             ]);
         });
     }
+    */
 
     /**
      * Indicate that the model's email address should be unverified.

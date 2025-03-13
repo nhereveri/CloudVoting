@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Permission;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
@@ -63,5 +64,17 @@ class User extends Authenticatable
     public function permission()
     {
         return $this->hasOne(Permission::class);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            Permission::create([
+                'user_id' => $user->id,
+                'can_vote' => true,
+                'is_supervisor' => false,
+                'is_admin' => false
+            ]);
+        });
     }
 }

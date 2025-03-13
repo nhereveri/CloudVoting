@@ -9,36 +9,28 @@
             .monospace-cell {
                 font-family: monospace !important;
             }
+            .handsontable th {
+                font-family: 'Figtree', sans-serif !important;
+                background-color: rgb(249 250 251) !important;
+                color: rgb(17 24 39) !important;
+                font-size: 0.875rem !important;
+                line-height: 1.25rem !important;
+            }
         </style>
     </x-slot>
 
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Batch') }}
+            {{ __('Batch upload users') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
-
-<!-- START -->
-
-            <dl class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @livewire('voter-stats')
                 @livewire('supervisor-stats')
-                <div class="overflow-hidden pt-5 sm:pt-6 flex justify-between items-end space-x-4">
-                    <button type="button" 
-                        onclick="createUsers()"
-                        wire:click="$emit('voterStatsUpdated')"
-                        class="w-64 inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        Crear Usuarios
-                    </button>
-                    <button type="button" 
-                        onclick="validateAllUsers()"
-                        class="w-32 inline-flex items-center justify-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        Validar
-                    </button>
-                </div>
+                
                 <div class="col-span-3">
                     <div id="toast" class="hidden fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full transition-all duration-300 z-50 max-w-sm w-full shadow-lg mt-4">
                         <div class="flex items-center p-4 text-sm rounded-lg" role="alert">
@@ -47,10 +39,24 @@
                     </div>
                 </div>
             </dl>
-
-        <!-- END -->
             <div class="mt-6 overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 lg:p-8 bg-gray-50 border-b border-gray-200">
+                    <div class="overflow-hidden py-5 sm:py-6">
+                        <div class="flex flex-row-reverse justify-start space-x-4 space-x-reverse">
+                            <button type="button" 
+                                onclick="validateAllUsers()"
+                                class="inline-flex items-center justify-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Validar
+                            </button>
+                            <button type="button" 
+                                onclick="createUsers()"
+                                wire:click="$emit('voterStatsUpdated')"
+                                class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                Crear Usuarios
+                            </button>
+                        </div>
+                    </div>
+
                     <div style="height: 600px;">
                         <div id="spreadsheet" class="w-full h-full"></div>
                     </div>
@@ -69,51 +75,49 @@
                                     validationWorker = new Worker('/js/validation-worker.js');
                                 }
                         
-                            const data = hot.getData();
-                            const dataLength = data.findIndex(row => 
-                                row.every(cell => cell === null || cell === '')
-                            );
-                            
-                            const dataToValidate = dataLength === -1 ? 
-                                data : data.slice(0, dataLength);
-                        
-                            validationWorker.onmessage = function(e) {
-                                const results = e.data;
-
-                                console.log({results});
-                                    
-                                results.forEach(result => {
-                                    if(data[result.index][0] !== '') {
-                                        if(result.isRUNAvailable) {
-                                            hot.setCellMeta(result.index, 0, 'className', 
-                                                result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
-                                            );
-                                        } else {
-                                            hot.setCellMeta(result.index, 0, 'className', 'monospace-cell text-red-500');
-                                        }
-                                    }
-                                    
-                                    if(data[result.index][2] !== '') {
-                                        if(result.isEmailAvailable) {
-                                            hot.setCellMeta(result.index, 2, 'className',
-                                                result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
-                                            );
-                                        } else {
-                                            hot.setCellMeta(result.index, 2, 'className', 'monospace-cell text-red-500');
-                                        }
-                                    }
-                                });
+                                const data = hot.getData();
+                                const dataLength = data.findIndex(row => 
+                                    row.every(cell => cell === null || cell === '')
+                                );
                                 
-                                hot.render();
-                                resolve(results);
-                            };
-                        
-                            validationWorker.onerror = function(error) {
-                                reject(error);
-                            };
-                        
-                            validationWorker.postMessage(dataToValidate);
-                        });
+                                const dataToValidate = dataLength === -1 ? 
+                                    data : data.slice(0, dataLength);
+                            
+                                validationWorker.onmessage = function(e) {
+                                    const results = e.data;
+                                        
+                                    results.forEach(result => {
+                                        if(data[result.index][0] !== '') {
+                                            if(result.isRUNAvailable) {
+                                                hot.setCellMeta(result.index, 0, 'className', 
+                                                    result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
+                                                );
+                                            } else {
+                                                hot.setCellMeta(result.index, 0, 'className', 'monospace-cell text-red-500');
+                                            }
+                                        }
+                                        
+                                        if(data[result.index][2] !== '') {
+                                            if(result.isEmailAvailable) {
+                                                hot.setCellMeta(result.index, 2, 'className',
+                                                    result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
+                                                );
+                                            } else {
+                                                hot.setCellMeta(result.index, 2, 'className', 'monospace-cell text-red-500');
+                                            }
+                                        }
+                                    });
+                                    
+                                    hot.render();
+                                    resolve(results);
+                                };
+                            
+                                validationWorker.onerror = function(error) {
+                                    reject(error);
+                                };
+                            
+                                validationWorker.postMessage(dataToValidate);
+                            });
                         }
                         
                         async function createUsers() {
@@ -123,7 +127,8 @@
                                 const validUsers = data.filter((row, index) => {
                                     const result = validationResults.find(r => r.index === index);
                                     return row[0] && row[1] && row[2] && 
-                                           result && result.isValidRUN && result.isValidEmail;
+                                           result && result.isValidRUN && result.isValidEmail &&
+                                           result.isRUNAvailable && result.isEmailAvailable;
                                 }).map(row => ({
                                     run: row[0],
                                     name: row[1],
@@ -230,7 +235,7 @@
                         
                         hot = new Handsontable(container, {
                             data: [
-                                ['33333333-3', 'Nelson', 'nelson@hereveri.cl'],
+                                ['33333333-3', 'Nelson', 'nelson@hereveri.com'],
                                 ['12046474-3', 'Nelson', 'nh@gmail'],
                                 ['12046474-4', 'Nelson', 'nh@gmail.com'],
                             ],
@@ -241,6 +246,12 @@
                                 { type: 'text', className: 'monospace-cell' },
                                 { type: 'text', className: 'monospace-cell' }
                             ],
+                            columnSorting: {
+                                initialConfig: {
+                                    column: 0,
+                                    sortOrder: 'asc'
+                                }
+                            },
                             colWidths: [null, null, null],
                             rowHeaders: false,
                             minCols: 3,

@@ -34,12 +34,14 @@ class UserController extends Controller
                     'password' => Hash::make(Str::random(12))
                 ]);
 
+                /*
                 Permission::create([
                     'user_id' => $user->id,
                     'can_vote' => true,
                     'is_supervisor' => false,
                     'is_admin' => false
                 ]);
+                */
             }
 
             DB::commit();
