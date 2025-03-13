@@ -88,35 +88,103 @@
                             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                             return emailRegex.test(email);
                         }
-                        
+                        let validationWorker;
                         function validateAllUsers() {
+                            return new Promise((resolve, reject) => {
+                                if (!validationWorker) {
+                                    validationWorker = new Worker('/js/validation-worker.js');
+                                }
+                        
                             const data = hot.getData();
                             const dataLength = data.findIndex(row => 
                                 row.every(cell => cell === null || cell === '')
                             );
                             
-                            for (let rowIndex = 0; rowIndex < (dataLength === -1 ? data.length : dataLength); rowIndex++) {
-                                const row = data[rowIndex];
-                                const run = row[1];
-                                const email = row[3];
-                                const isValidRUN = validateRUN(run);
-                                const isValidEmail = validateEmail(email);
-                                const isRowValid = isValidRUN && isValidEmail;
-                            
-                                if(row[1] !== '') {
-                                    hot.setCellMeta(rowIndex, 1, 'className', 
-                                        isValidRUN ? 'monospace-cell' : 'monospace-cell text-red-500'
-                                    );
+                            const dataToValidate = dataLength === -1 ? 
+                                data : data.slice(0, dataLength);
+                        
+                            validationWorker.onmessage = function(e) {
+                                const results = e.data;
+                                    
+                                    results.forEach(result => {
+                                        if(data[result.index][1] !== '') {
+                                            hot.setCellMeta(result.index, 1, 'className', 
+                                                result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-red-500'
+                                            );
+                                        }
+                                        
+                                        if(data[result.index][3] !== '') {
+                                            hot.setCellMeta(result.index, 3, 'className',
+                                                result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-red-500'
+                                            );
+                                        }
+                                        hot.setDataAtCell(result.index, 0, result.isRowValid);
+                                    });
+                                    
+                                    hot.render();
+                                    resolve(results);
+                                };
+                        
+                            validationWorker.onerror = function(error) {
+                                reject(error);
+                            };
+                        
+                            validationWorker.postMessage(dataToValidate);
+                        });
+                        }
+                        
+                        async function createUsers() {
+                            try {
+                                await validateAllUsers();
+                                const data = hot.getData();
+                                const validUsers = data.filter((row, index) => {
+                                    return row[0] === true && 
+                                           row[1] && row[2] && row[3];
+                                }).map(row => ({
+                                    run: row[1],
+                                    name: row[2],
+                                    email: row[3]
+                                }));
+                        
+                                if (validUsers.length === 0) {
+                                    showToast('No hay usuarios válidos para crear', 'error');
+                                    return;
                                 }
-                                
-                                if(row[3] !== '') {
-                                    hot.setCellMeta(rowIndex, 3, 'className',
-                                        isValidEmail ? 'monospace-cell' : 'monospace-cell text-red-500'
-                                    );
+
+                                const response = await fetch('/users/batch', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify({ users: validUsers })
+                                });
+                                if (!response.ok) {
+                                    if (response.status === 400) {
+                                        throw new Error('Los datos ingresados no son válidos');
+                                    } else if (response.status === 409) {
+                                        throw new Error('Algunos usuarios ya existen en el sistema');
+                                    } else {
+                                        throw new Error('Ha ocurrido un error interno');
+                                    }
                                 }
-                                hot.setDataAtCell(rowIndex, 0, isRowValid);
+                                const result = await response.json();
+                                if (result.success) {
+                                    const rowsToRemove = hot.getData()
+                                        .map((row, index) => row[0] === true ? index : -1)
+                                        .filter(index => index !== -1)
+                                        .reverse();
+                                    
+                                    rowsToRemove.forEach(index => {
+                                        hot.alter('remove_row', index);
+                                    });
+                                    
+                                    showToast('Usuarios creados exitosamente');
+                                    Livewire.dispatch('voterStatsUpdated');
+                                }
+                            } catch (error) {
+                                showToast(error.message, 'error');
                             }
-                            hot.render();
                         }
 
                         function showToast(message, type = 'success') {
@@ -148,64 +216,6 @@
                                     toast.classList.add('hidden');
                                 }, 300);
                             }, 3000);
-                        }
-                        
-                        function createUsers() {
-                            validateAllUsers();
-                            const data = hot.getData();
-                            const validUsers = data.filter((row, index) => {
-                                return row[0] === true && 
-                                       row[1] && row[2] && row[3];
-                            }).map(row => ({
-                                run: row[1],
-                                name: row[2],
-                                email: row[3]
-                            }));
-
-                            if (validUsers.length === 0) {
-                                showToast('No hay usuarios válidos para crear', 'error');
-                                return;
-                            }
-
-                            fetch('/users/batch', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                },
-                                body: JSON.stringify({ users: validUsers })
-                            })
-                            .then(async response => {
-                                if (!response.ok) {
-                                    if (response.status === 400) {
-                                        throw new Error('Los datos ingresados no son válidos');
-                                    } else if (response.status === 409) {
-                                        throw new Error('Algunos usuarios ya existen en el sistema');
-                                    } else {
-                                        throw new Error('Ha ocurrido un error interno');
-                                    }
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (data.success) {
-                                    const rowsToRemove = hot.getData()
-                                        .map((row, index) => row[0] === true ? index : -1)
-                                        .filter(index => index !== -1)
-                                        .reverse();
-                                    
-                                    rowsToRemove.forEach(index => {
-                                        hot.alter('remove_row', index);
-                                    });
-                                    
-                                    showToast('Usuarios creados exitosamente');
-                                    // New Livewire 3.0 dispatch syntax
-                                    Livewire.dispatch('voterStatsUpdated');
-                                }
-                            })
-                            .catch(error => {
-                                showToast(error.message, 'error');
-                            });
                         }
                         
                         hot = new Handsontable(container, {
