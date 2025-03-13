@@ -60,6 +60,8 @@
                     document.addEventListener("DOMContentLoaded", function () {
                         var container = document.getElementById('spreadsheet');
                         var hot;
+                        let validationWorker;
+                        let toastWorker;
 
                         function validateRUN(run) {
                             if (!run || run.trim() === '') return false;
@@ -88,7 +90,7 @@
                             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                             return emailRegex.test(email);
                         }
-                        let validationWorker;
+
                         function validateAllUsers() {
                             return new Promise((resolve, reject) => {
                                 if (!validationWorker) {
@@ -109,13 +111,13 @@
                                     results.forEach(result => {
                                         if(data[result.index][1] !== '') {
                                             hot.setCellMeta(result.index, 1, 'className', 
-                                                result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-red-500'
+                                                result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
                                             );
                                         }
                                         
                                         if(data[result.index][3] !== '') {
                                             hot.setCellMeta(result.index, 3, 'className',
-                                                result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-red-500'
+                                                result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
                                             );
                                         }
                                         hot.setDataAtCell(result.index, 0, result.isRowValid);
@@ -186,36 +188,62 @@
                                 showToast(error.message, 'error');
                             }
                         }
-
+                    
                         function showToast(message, type = 'success') {
-                            const toast = document.getElementById('toast');
-                            const toastMessage = document.getElementById('toastMessage');
-                            
-                            toast.className = 'fixed top-0 left-1/2 transform -translate-x-1/2 -translate-y-full transition-all duration-300 z-50 max-w-sm w-full shadow-lg mt-4';
-                            if (type === 'success') {
-                                toast.className += ' bg-green-50 text-green-800 border border-green-500 rounded-lg';
-                            } else {
-                                toast.className += ' bg-red-50 text-red-800 border border-red-500 rounded-lg';
+                            if (!toastWorker) {
+                                toastWorker = new Worker('/js/toast-worker.js');
+                                toastWorker.onmessage = handleToastWorkerMessage;
                             }
                             
-                            toastMessage.textContent = message;
-                            toast.classList.remove('hidden');
-                            
-                            // Initial position (above viewport)
-                            toast.style.transform = 'translateX(-50%) translateY(-100%)';
-                            
-                            // Slide down animation
-                            requestAnimationFrame(() => {
-                                toast.style.transform = 'translateX(-50%) translateY(0)';
-                            });
-                            
-                            // Slide up and hide after delay
-                            setTimeout(() => {
+                            toastWorker.postMessage({ message, type });
+                        }
+                    
+                        function handleToastWorkerMessage(e) {
+                            const toast = document.getElementById('toast');
+                            const toastMessage = document.getElementById('toastMessage');
+                            const { action, message, type } = e.data;
+                    
+                            if (action === 'show') {
+                                // Reset any ongoing transitions
+                                toast.style.transition = 'none';
                                 toast.style.transform = 'translateX(-50%) translateY(-100%)';
-                                setTimeout(() => {
+                                
+                                // Setup toast appearance
+                                toast.className = 'fixed top-0 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full shadow-lg mt-4';
+                                
+                                switch (type) {
+                                    case 'success':
+                                        toast.className += ' bg-green-50 text-green-800 border border-green-500 rounded-lg';
+                                        break;
+                                    case 'warning':
+                                        toast.className += ' bg-amber-50 text-amber-800 border border-amber-500 rounded-lg';
+                                        break;
+                                    case 'error':
+                                        toast.className += ' bg-red-50 text-red-800 border border-red-500 rounded-lg';
+                                        break;
+                                }
+                                
+                                toastMessage.textContent = message;
+                                toast.classList.remove('hidden');
+                                
+                                // Force reflow to ensure transition works
+                                void toast.offsetWidth;
+                                
+                                // Re-enable transitions and animate down
+                                toast.style.transition = 'transform 300ms ease-out';
+                                toast.style.transform = 'translateX(-50%) translateY(0)';
+                                
+                            } else if (action === 'hide') {
+                                toast.style.transition = 'transform 300ms ease-in';
+                                toast.style.transform = 'translateX(-50%) translateY(-100%)';
+                                
+                                // Wait for hide animation to complete before hiding element
+                                toast.addEventListener('transitionend', () => {
                                     toast.classList.add('hidden');
-                                }, 300);
-                            }, 3000);
+                                    // Signal the worker that we're ready for the next toast
+                                    toastWorker.postMessage({ action: 'ready' });
+                                }, { once: true });
+                            }
                         }
                         
                         hot = new Handsontable(container, {
@@ -245,6 +273,9 @@
                         // Make function available globally
                         window.validateAllUsers = validateAllUsers;
                         window.createUsers = createUsers;
+                        showToast('Test 001');
+                        showToast('Test 002', 'warning');
+                        showToast('Test 003', 'error');
                     });
                 </script>
             </div>
