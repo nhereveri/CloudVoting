@@ -159,12 +159,19 @@
                                 }
                                 const result = await response.json();
                                 if (result.success) {
-                                    const rowsToRemove = hot.getData()
-                                        .map((row, index) => row[0] === true ? index : -1)
-                                        .filter(index => index !== -1)
-                                        .reverse();
+                                    // Get indices of successfully created users
+                                    const successIndices = validUsers.map((_, index) => {
+                                        const row = data.findIndex(r => 
+                                            r[0] === validUsers[index].run &&
+                                            r[1] === validUsers[index].name &&
+                                            r[2] === validUsers[index].email
+                                        );
+                                        return row;
+                                    }).filter(index => index !== -1)
+                                    .sort((a, b) => b - a); // Sort in descending order
                                     
-                                    rowsToRemove.forEach(index => {
+                                    // Remove rows from bottom to top to maintain indices
+                                    successIndices.forEach(index => {
                                         hot.alter('remove_row', index);
                                     });
                                     
