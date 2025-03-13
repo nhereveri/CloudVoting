@@ -2,6 +2,26 @@ self.onmessage = function(e) {
     const data = e.data;
     const validationResults = [];
     
+    async function checkEmailExists(email) {
+        try {
+            const response = await fetch(`/users/check-email?email=${encodeURIComponent(email)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                return false;
+            }
+            
+            const data = await response.json();
+            return !data.exists;
+        } catch (error) {
+            return false;
+        }
+    }
+
     function validateRUN(run) {
         if (!run || run.trim() === '') return false;
         
@@ -30,19 +50,28 @@ self.onmessage = function(e) {
         return emailRegex.test(email);
     }
 
-    data.forEach((row, index) => {
+    async function processRow(row, index) {
         const run = row[0];
         const email = row[2];
         const isValidRUN = validateRUN(run);
         const isValidEmail = validateEmail(email);
         
-        validationResults.push({
+        let isEmailAvailable = true;
+        if (isValidEmail) {
+            isEmailAvailable = await checkEmailExists(email);
+        }
+        
+        return {
             index,
             isValidRUN,
             isValidEmail,
-            isRowValid: isValidRUN && isValidEmail
-        });
-    });
+            isEmailAvailable,
+            isRowValid: isValidRUN && isValidEmail && isEmailAvailable
+        };
+    }
 
-    self.postMessage(validationResults);
+    Promise.all(data.map((row, index) => processRow(row, index)))
+        .then(results => {
+            self.postMessage(results);
+        });
 };

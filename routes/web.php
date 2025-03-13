@@ -33,5 +33,6 @@ Route::middleware([
         })->name('batch');
 
         Route::post('/users/batch', [UserController::class, 'batchCreate']);
+        Route::get('/users/check-email', [UserController::class, 'checkEmail']);
     });
 });

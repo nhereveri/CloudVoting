@@ -90,9 +90,13 @@
                                     }
                                     
                                     if(data[result.index][2] !== '') {
-                                        hot.setCellMeta(result.index, 2, 'className',
-                                            result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
-                                        );
+                                        if(result.isEmailAvailable) {
+                                            hot.setCellMeta(result.index, 2, 'className',
+                                                result.isValidEmail ? 'monospace-cell' : 'monospace-cell text-amber-500'
+                                            );
+                                        } else {
+                                            hot.setCellMeta(result.index, 2, 'className', 'monospace-cell text-red-500');
+                                        }
                                     }
                                 });
                                 
@@ -222,9 +226,9 @@
                         
                         hot = new Handsontable(container, {
                             data: [
-                                ['33333333-3', 'Nelson', 'nh@gmail.com'],
+                                ['33333333-3', 'Nelson', 'nelson@hereveri.cl'],
                                 ['12046474-3', 'Nelson', 'nh@gmail'],
-                                ['12046474-5', 'Nelson', 'nh@gmail.com'],
+                                ['12046474-4', 'Nelson', 'nh@gmail.com'],
                             ],
                             colHeaders: ['RUN', 'Nombre', 'Correo electrónico'],
                             headerClassName: 'sans-serif-header',
