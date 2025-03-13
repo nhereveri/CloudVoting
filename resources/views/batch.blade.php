@@ -84,9 +84,13 @@
                                     
                                 results.forEach(result => {
                                     if(data[result.index][0] !== '') {
-                                        hot.setCellMeta(result.index, 0, 'className', 
-                                            result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
-                                        );
+                                        if(result.isRUNAvailable) {
+                                            hot.setCellMeta(result.index, 0, 'className', 
+                                                result.isValidRUN ? 'monospace-cell' : 'monospace-cell text-amber-500'
+                                            );
+                                        } else {
+                                            hot.setCellMeta(result.index, 0, 'className', 'monospace-cell text-red-500');
+                                        }
                                     }
                                     
                                     if(data[result.index][2] !== '') {

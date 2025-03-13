@@ -22,6 +22,26 @@ self.onmessage = function(e) {
         }
     }
 
+    async function checkRunExists(run) {
+        try {
+            const response = await fetch(`/users/check-run?run=${encodeURIComponent(run)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                return false;
+            }
+            
+            const data = await response.json();
+            return !data.exists;
+        } catch (error) {
+            return false;
+        }
+    }
+
     function validateRUN(run) {
         if (!run || run.trim() === '') return false;
         
@@ -57,6 +77,12 @@ self.onmessage = function(e) {
         const isValidEmail = validateEmail(email);
         
         let isEmailAvailable = true;
+        let isRUNAvailable = true;
+
+        if (isValidRUN) {
+            isRUNAvailable = await checkRunExists(run);
+        }
+        
         if (isValidEmail) {
             isEmailAvailable = await checkEmailExists(email);
         }
@@ -66,7 +92,8 @@ self.onmessage = function(e) {
             isValidRUN,
             isValidEmail,
             isEmailAvailable,
-            isRowValid: isValidRUN && isValidEmail && isEmailAvailable
+            isRUNAvailable,
+            isRowValid: isValidRUN && isValidEmail && isEmailAvailable && isRUNAvailable
         };
     }
 
