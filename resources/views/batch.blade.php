@@ -94,8 +94,7 @@
                                 const nonEmptyRows = data.filter(row => 
                                     !row.every(cell => cell === null || cell === '')
                                 ).map(row => {
-                                    // Clean RUN format: only allow digits, hyphens, and K
-                                    const cleanRun = row[0] ? row[0].replace(/[^0-9kK-]/g, '').replace(/k/g, 'K') : row[0];
+                                    const cleanRun = row[0] ? row[0].replace(/[^0-9kK-]/g, '').replace(/k/g, 'K').replace(/^0+(?=\d)/, '') : row[0];
                                     return [cleanRun, row[1], row[2]];
                                 });
 
@@ -103,7 +102,6 @@
                                 
                                 validationWorker.onmessage = function(e) {
                                     const results = e.data;
-                                    console.log({results});
                                         
                                     results.forEach(result => {
                                         if(data[result.index][0] !== '') {
@@ -233,7 +231,7 @@
                         
                         hot = new Handsontable(container, {
                             data: [
-                                ['11111111-1', 'Nelson', '123@gmail.com'],
+                                ['00011111-1', 'Nelson', '123@gmail.com'],
                                 ['22222222-k', 'Nelson', '234@gmail.com'],
                                 ['33333333 - 3', 'Nelson', '345@gmail.com'],
                                 ['44444444-4', 'Nelson', '456@gmail'],

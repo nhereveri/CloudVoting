@@ -28,8 +28,5 @@ class DatabaseSeeder extends Seeder
                 'email' => 'nelson@hereveri.cl',
                 'password' => bcrypt('pasopaso'),
             ]);
-
-        // Create regular users with default permissions
-        User::factory(10)->create();
     }
 }
