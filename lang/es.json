@@ -28,7 +28,6 @@
     "Log Out": "Cerrar sesión",
     "Profile Information": "Información de perfil",
     "Update your account's profile information and email address.": "Actualice la información de perfil y dirección de correo de su cuenta.",
-    "Name": "Nombre",
     "Email": "Correo electrónico",
     "Email Address": "Dirección de correo",
     "Save": "Guardar",
@@ -56,5 +55,19 @@
     "Delete Account": "Eliminar cuenta",
     "Permanently delete your account.": "Eliminar permanentemente su cuenta.",
     "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.": "Una vez que su cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Antes de eliminar su cuenta, por favor descargue cualquier dato o información que desee conservar.",
-    "Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "¿Está seguro de que desea eliminar su cuenta? Una vez que su cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Por favor, introduzca su contraseña para confirmar que desea eliminar permanentemente su cuenta."
+    "Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "¿Está seguro de que desea eliminar su cuenta? Una vez que su cuenta sea eliminada, todos sus recursos y datos serán eliminados permanentemente. Por favor, introduzca su contraseña para confirmar que desea eliminar permanentemente su cuenta.",
+    "Could not copy to clipboard": "No se pudo copiar al portapapeles",
+    "Data copied to clipboard": "Datos copiados al portapapeles",
+    "E-mail already registered": "El correo electrónico ya está registrado",
+    "Invalid e-mail": "Correo electrónico inválido",
+    "Copy to clipboard": "Copiar al portapapeles",
+    "Validate": "Validar",
+    "Create users": "Crear usuarios",
+    "RUN already registered": "El RUN ya está registrado",
+    "Invalid RUN": "RUN inválido",
+    "Users created successfully": "Usuarios creados exitosamente",
+    "An internal error has occurred": "Ha ocurrido un error interno",
+    "Some users already exist in the system": "Algunos usuarios ya existen en el sistema",
+    "The data entered is not valid": "Los datos ingresados no son válidos",
+    "There are no valid users to create": "No hay usuarios válidos para crear"
 }
