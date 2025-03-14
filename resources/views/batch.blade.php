@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <div style="height: 600px;">
+                    <div class="grid grid-rows-[minmax(300px,_1fr)]">
                         <div id="spreadsheet" class="w-full h-full"></div>
                     </div>
                 </div>
@@ -76,15 +76,17 @@
                                 }
                         
                                 const data = hot.getData();
-                                const dataLength = data.findIndex(row => 
-                                    row.every(cell => cell === null || cell === '')
-                                );
                                 
-                                const dataToValidate = dataLength === -1 ? 
-                                    data : data.slice(0, dataLength);
-                            
+                                // Remove empty rows
+                                const nonEmptyRows = data.filter(row => 
+                                    !row.every(cell => cell === null || cell === '')
+                                );
+
+                                hot.loadData(nonEmptyRows);
+                                
                                 validationWorker.onmessage = function(e) {
                                     const results = e.data;
+                                    console.log({results});
                                         
                                     results.forEach(result => {
                                         if(data[result.index][0] !== '') {
@@ -116,7 +118,7 @@
                                     reject(error);
                                 };
                             
-                                validationWorker.postMessage(dataToValidate);
+                                validationWorker.postMessage(nonEmptyRows);
                             });
                         }
                         
@@ -136,7 +138,7 @@
                                 }));
                         
                                 if (validUsers.length === 0) {
-                                    showToast('No hay usuarios válidos para crear', 'error');
+                                    showToast('No hay usuarios válidos para crear.', 'error');
                                     return;
                                 }
 
@@ -150,16 +152,15 @@
                                 });
                                 if (!response.ok) {
                                     if (response.status === 400) {
-                                        throw new Error('Los datos ingresados no son válidos');
+                                        throw new Error('Los datos ingresados no son válidos.');
                                     } else if (response.status === 409) {
-                                        throw new Error('Algunos usuarios ya existen en el sistema');
+                                        throw new Error('Algunos usuarios ya existen en el sistema.');
                                     } else {
-                                        throw new Error('Ha ocurrido un error interno');
+                                        throw new Error('Ha ocurrido un error interno.');
                                     }
                                 }
                                 const result = await response.json();
                                 if (result.success) {
-                                    // Get indices of successfully created users
                                     const successIndices = validUsers.map((_, index) => {
                                         const row = data.findIndex(r => 
                                             r[0] === validUsers[index].run &&
@@ -168,14 +169,13 @@
                                         );
                                         return row;
                                     }).filter(index => index !== -1)
-                                    .sort((a, b) => b - a); // Sort in descending order
+                                    .sort((a, b) => b - a);
                                     
-                                    // Remove rows from bottom to top to maintain indices
                                     successIndices.forEach(index => {
                                         hot.alter('remove_row', index);
                                     });
                                     
-                                    showToast('Usuarios creados exitosamente');
+                                    showToast('Usuarios creados exitosamente.');
                                     Livewire.dispatch('voterStatsUpdated');
                                 }
                             } catch (error) {
@@ -241,11 +241,6 @@
                         }
                         
                         hot = new Handsontable(container, {
-                            data: [
-                                ['33333333-3', 'Nelson', 'nelson@hereveri.com'],
-                                ['12046474-3', 'Nelson', 'nh@gmail'],
-                                ['12046474-4', 'Nelson', 'nh@gmail.com'],
-                            ],
                             colHeaders: ['RUN', 'Nombre', 'Correo electrónico'],
                             headerClassName: 'sans-serif-header',
                             columns: [
@@ -253,16 +248,10 @@
                                 { type: 'text', className: 'monospace-cell' },
                                 { type: 'text', className: 'monospace-cell' }
                             ],
-                            columnSorting: {
-                                initialConfig: {
-                                    column: 0,
-                                    sortOrder: 'asc'
-                                }
-                            },
                             colWidths: [null, null, null],
                             rowHeaders: false,
                             minCols: 3,
-                            minRows: 1,
+                            minRows: 5,
                             minSpareRows: 1,
                             width: '100%',
                             height: '100%',
