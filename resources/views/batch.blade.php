@@ -91,10 +91,13 @@
                         
                                 const data = hot.getData();
                                 
-                                // Remove empty rows
                                 const nonEmptyRows = data.filter(row => 
                                     !row.every(cell => cell === null || cell === '')
-                                );
+                                ).map(row => {
+                                    // Clean RUN format: only allow digits, hyphens, and K
+                                    const cleanRun = row[0] ? row[0].replace(/[^0-9kK-]/g, '').replace(/k/g, 'K') : row[0];
+                                    return [cleanRun, row[1], row[2]];
+                                });
 
                                 hot.loadData(nonEmptyRows);
                                 
@@ -196,63 +199,6 @@
                                 showToast(error.message, 'error');
                             }
                         }
-                    
-                        function showToast(message, type = 'success') {
-                            if (!toastWorker) {
-                                toastWorker = new Worker('/js/toast-worker.js');
-                                toastWorker.onmessage = handleToastWorkerMessage;
-                            }
-                            
-                            toastWorker.postMessage({ message, type });
-                        }
-                    
-                        function handleToastWorkerMessage(e) {
-                            const toast = document.getElementById('toast');
-                            const toastMessage = document.getElementById('toastMessage');
-                            const { action, message, type } = e.data;
-                    
-                            if (action === 'show') {
-                                // Reset any ongoing transitions
-                                toast.style.transition = 'none';
-                                toast.style.transform = 'translateX(-50%) translateY(-100%)';
-                                
-                                // Setup toast appearance
-                                toast.className = 'fixed top-0 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full shadow-lg mt-4';
-                                
-                                switch (type) {
-                                    case 'success':
-                                        toast.className += ' bg-green-50 text-green-800 border border-green-500 rounded-lg';
-                                        break;
-                                    case 'warning':
-                                        toast.className += ' bg-amber-50 text-amber-800 border border-amber-500 rounded-lg';
-                                        break;
-                                    case 'error':
-                                        toast.className += ' bg-red-50 text-red-800 border border-red-500 rounded-lg';
-                                        break;
-                                }
-                                
-                                toastMessage.textContent = message;
-                                toast.classList.remove('hidden');
-                                
-                                // Force reflow to ensure transition works
-                                void toast.offsetWidth;
-                                
-                                // Re-enable transitions and animate down
-                                toast.style.transition = 'transform 300ms ease-out';
-                                toast.style.transform = 'translateX(-50%) translateY(0)';
-                                
-                            } else if (action === 'hide') {
-                                toast.style.transition = 'transform 300ms ease-in';
-                                toast.style.transform = 'translateX(-50%) translateY(-100%)';
-                                
-                                // Wait for hide animation to complete before hiding element
-                                toast.addEventListener('transitionend', () => {
-                                    toast.classList.add('hidden');
-                                    // Signal the worker that we're ready for the next toast
-                                    toastWorker.postMessage({ action: 'ready' });
-                                }, { once: true });
-                            }
-                        }
 
                         async function copyCurrentData() {
                             try {
@@ -279,7 +225,7 @@
                                 const csvContent = [headers.join('\t'), ...formattedData].join('\n');
                                 
                                 await navigator.clipboard.writeText(csvContent);
-                                showToast('{{ __("Data copied to clipboard") }}.');
+                                showToast('{{ __("Data copied to clipboard") }}. {{ __("You can now paste into a spreadsheet") }}.');
                             } catch (error) {
                                 showToast('{{ __("Could not copy to clipboard") }}.', 'error');
                             }
@@ -288,11 +234,11 @@
                         hot = new Handsontable(container, {
                             data: [
                                 ['11111111-1', 'Nelson', '123@gmail.com'],
-                                ['22222222-2', 'Nelson', '234@gmail.com'],
-                                ['33333333-3', 'Nelson', '345@gmail.com'],
-                                ['44444444-4', 'Nelson', '456@gmail.com'],
-                                ['55555555-5', 'Nelson', '567@gmail.com'],
-                                ['12046474-4', 'Nelson', 'nelson@hereveri.cl'],
+                                ['22222222-k', 'Nelson', '234@gmail.com'],
+                                ['33333333 - 3', 'Nelson', '345@gmail.com'],
+                                ['44444444-4', 'Nelson', '456@gmail'],
+                                ['55.555.555-5', 'Nelson', 'nh@r9.cl'],
+                                ['12.046.474-4', 'Nelson', 'nelson@hereveri.cl'],
                             ],
                             colHeaders: ['{{ __("RUN") }}', '{{ __("Name") }}', '{{ __("Email") }}'],
                             headerClassName: 'sans-serif-header',

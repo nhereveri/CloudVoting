@@ -69,5 +69,6 @@
     "An internal error has occurred": "Ha ocurrido un error interno",
     "Some users already exist in the system": "Algunos usuarios ya existen en el sistema",
     "The data entered is not valid": "Los datos ingresados no son válidos",
-    "There are no valid users to create": "No hay usuarios válidos para crear"
+    "There are no valid users to create": "No hay usuarios válidos para crear",
+    "You can now paste into a spreadsheet": "Ahora puede pegar en una hoja de cálculo"
 }
